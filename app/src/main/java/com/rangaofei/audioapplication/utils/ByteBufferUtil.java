@@ -1,4 +1,4 @@
-package com.rangaofei.audioapplication;
+package com.rangaofei.audioapplication.utils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

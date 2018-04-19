@@ -1,11 +1,8 @@
 package com.rangaofei.audioapplication;
 
-import android.util.Log;
+import com.rangaofei.audioapplication.utils.ByteBufferUtil;
 
 import org.junit.Test;
-
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import static org.junit.Assert.*;
 

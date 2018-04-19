@@ -4,7 +4,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.rangaofei.audioapplication"
-        minSdkVersion 15
+        minSdkVersion 17
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
@@ -12,6 +12,7 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags ""
+                arguments '-DANDROID_STL=c++_static'
             }
         }
     }
@@ -24,11 +25,12 @@ android {
     externalNativeBuild {
         cmake {
             path "CMakeLists.txt"
+
         }
     }
 
-    dataBinding{
-        enabled=true
+    dataBinding {
+        enabled = true
     }
 }
 

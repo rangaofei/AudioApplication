@@ -12,24 +12,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioGroup;
 
-import com.rangaofei.audioapplication.ByteUtil;
+import com.rangaofei.audioapplication.utils.ByteUtil;
 import com.rangaofei.audioapplication.R;
 import com.rangaofei.audioapplication.databinding.FragmentPcmBinding;
 
 import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -104,20 +96,17 @@ public class PCMFragment extends Fragment {
         byte[] audio = new byte[bufferSize];
         audioRecord.startRecording();
 
-
+        Log.e("---", "samplerate=" + audioRecord.getSampleRate() + ",channelcount" + audioRecord.getChannelCount());
         isRecording = true;
         fileName = "" + System.currentTimeMillis() + ".wav";
         File file = new File(Environment.getExternalStorageDirectory(), fileName);
         if (!file.exists()) {
-
             file.createNewFile();
-
         }
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file, true));
         pcmToWav(bos);
-        int blockLength = 16 * audioRecord.getChannelCount() / 8;
         while (isRecording) {
-
+            audioRecord.read(audio, 0, bufferSize);
             bos.write(audio);
         }
         audioRecord.stop();

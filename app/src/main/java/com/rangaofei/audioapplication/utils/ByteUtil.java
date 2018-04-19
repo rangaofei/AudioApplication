@@ -1,4 +1,4 @@
-package com.rangaofei.audioapplication;
+package com.rangaofei.audioapplication.utils;
 
 /**
  * very simple util for byte to int or short or long.
