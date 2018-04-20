@@ -1,4 +1,4 @@
-package com.rangaofei.audioapplication.com.saka.ndk;
+package com.saka.ndk;
 
 /**
  * Created by rangaofei on 2018/4/17.

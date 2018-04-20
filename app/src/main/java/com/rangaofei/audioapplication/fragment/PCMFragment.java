@@ -16,9 +16,13 @@ import android.view.ViewGroup;
 import com.rangaofei.audioapplication.utils.ByteUtil;
 import com.rangaofei.audioapplication.R;
 import com.rangaofei.audioapplication.databinding.FragmentPcmBinding;
+import com.rangaofei.audioapplication.wavformat.DataChunk;
+import com.rangaofei.audioapplication.wavformat.FMTChunk;
+import com.rangaofei.audioapplication.wavformat.RIFFChunk;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -112,6 +116,11 @@ public class PCMFragment extends Fragment {
         audioRecord.stop();
         bos.flush();
         bos.close();
+        fixWAVSize(file);
+
+    }
+
+    private void fixWAVSize(File file) throws IOException {
         long length = file.length() - 44;
         Log.e("-----", "" + length);
         RandomAccessFile raf = new RandomAccessFile(file, "rwd");
@@ -120,7 +129,6 @@ public class PCMFragment extends Fragment {
         raf.seek(40);
         raf.write(ByteUtil.intToLittleByte((int) length));
         raf.close();
-
     }
 
     private void stopRecord() {
@@ -131,26 +139,9 @@ public class PCMFragment extends Fragment {
 
     private void pcmToWav(BufferedOutputStream fileOutputStream) {
         try {
-
-            fileOutputStream.write(HEADER_CHUNK.getBytes());
-            fileOutputStream.write(ByteUtil.intToLittleByte(36));
-            fileOutputStream.write(FORMAT.getBytes());
-
-            fileOutputStream.write(FMT_CHUNK.getBytes());
-            fileOutputStream.write(ByteUtil.intToLittleByte(16));
-            fileOutputStream.write(ByteUtil.shortToLittleByte((short) 1));
-            fileOutputStream.write(ByteUtil.shortToLittleByte((short) (audioRecord.getChannelCount())));
-            fileOutputStream.write(ByteUtil.intToLittleByte(audioRecord.getSampleRate()));
-            fileOutputStream.write(ByteUtil.intToLittleByte(2 * 22050 * 16 / 8));
-            fileOutputStream.write(ByteUtil.shortToLittleByte((short) (2 * 16 / 8)));
-            fileOutputStream.write(ByteUtil.shortToLittleByte((short) 16));
-
-            fileOutputStream.write(DATA_CHUNK.getBytes());
-            fileOutputStream.write(0);
-            fileOutputStream.write(0);
-            fileOutputStream.write(0);
-            fileOutputStream.write(0);
-            fileOutputStream.flush();
+            RIFFChunk.writeRIFFCHunk(fileOutputStream,44);
+            FMTChunk.writeFMTChunkWithDefaultSize(fileOutputStream,(short)2,audioRecord.getSampleRate());
+            DataChunk.writeDATAChunk(fileOutputStream,0);
         } catch (IOException e) {
             e.printStackTrace();
         }

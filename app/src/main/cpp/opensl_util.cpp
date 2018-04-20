@@ -8,7 +8,7 @@
 static AudioEngine audioEngine;
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_rangaofei_audioapplication_com_saka_ndk_OpenSLUtil_createSLEngine(JNIEnv *env, jclass type,
+Java_com_saka_ndk_OpenSLUtil_createSLEngine(JNIEnv *env, jclass type,
                                                                            jint rate,
                                                                            jint framesPerBuf,
                                                                            jint channels) {
@@ -49,7 +49,7 @@ Java_com_rangaofei_audioapplication_com_saka_ndk_OpenSLUtil_createSLEngine(JNIEn
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_com_rangaofei_audioapplication_com_saka_ndk_OpenSLUtil_createAudioRecorder(JNIEnv *env,
+Java_com_saka_ndk_OpenSLUtil_createAudioRecorder(JNIEnv *env,
                                                                                 jclass type) {
 
     SampleFormat sampleFormat;
@@ -71,7 +71,7 @@ Java_com_rangaofei_audioapplication_com_saka_ndk_OpenSLUtil_createAudioRecorder(
 
 }extern "C"
 JNIEXPORT void JNICALL
-Java_com_rangaofei_audioapplication_com_saka_ndk_OpenSLUtil_deleteAudioRecorder(JNIEnv *env,
+Java_com_saka_ndk_OpenSLUtil_deleteAudioRecorder(JNIEnv *env,
                                                                                 jclass type) {
 
     if (audioEngine.recorder) {
@@ -81,7 +81,7 @@ Java_com_rangaofei_audioapplication_com_saka_ndk_OpenSLUtil_deleteAudioRecorder(
 
 }extern "C"
 JNIEXPORT void JNICALL
-Java_com_rangaofei_audioapplication_com_saka_ndk_OpenSLUtil_startPlay(JNIEnv *env, jclass type) {
+Java_com_saka_ndk_OpenSLUtil_startPlay(JNIEnv *env, jclass type) {
 
     audioEngine.frameCount = 0;
 
@@ -89,7 +89,7 @@ Java_com_rangaofei_audioapplication_com_saka_ndk_OpenSLUtil_startPlay(JNIEnv *en
 
 }extern "C"
 JNIEXPORT void JNICALL
-Java_com_rangaofei_audioapplication_com_saka_ndk_OpenSLUtil_stopPlay(JNIEnv *env, jclass type) {
+Java_com_saka_ndk_OpenSLUtil_stopPlay(JNIEnv *env, jclass type) {
 
     audioEngine.recorder->Stop();
     delete audioEngine.recorder;

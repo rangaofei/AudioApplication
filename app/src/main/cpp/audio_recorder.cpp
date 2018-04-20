@@ -152,12 +152,15 @@ SLboolean AudioRecorder::Stop() {
     if (curState == SL_RECORDSTATE_STOPPED) {
         return SL_BOOLEAN_TRUE;
     }
-    int size = file_size2(file_name);
-    file = fopen(file_name, "w+");
-    fseek(file, 8, SEEK_SET);
-    fprintf(file, "%d", size - 8);
-    fseek(file, 36, SEEK_SET);
-    fprintf(file, "%d", size - 44);
+    int32_t size = file_size2(file_name);
+    SAKA_LOG_DEBUG("the file size is %d", size);
+    file = fopen(file_name, "r+");
+    fseek(file, 4, SEEK_SET);
+    int32_t chunkSize = size - 8;
+    fwrite(&chunkSize, sizeof(int32_t), 1, file);
+    fseek(file, 40, SEEK_SET);
+    int32_t dataSize = size - 44;
+    fwrite(&dataSize, sizeof(uint32_t), 1, file);
     fclose(file);
     result = (*recordItf)->SetRecordState(recordItf, SL_RECORDSTATE_STOPPED);
     SLASSERT(result);
@@ -198,17 +201,27 @@ uint32_t AudioRecorder::dbgGetDevBufCount(void) {
 }
 
 int AudioRecorder::writeHeader() {
-    fprintf(file, "%s", "RIFF");        //写入"RIFF"
-    fprintf(file, "%d", 36);             //写入文件长度
-    fprintf(file, "%s", "WAVE");        //写入"WAVE"
-    fprintf(file, "%s", "fmt ");        //写入"fmt "
-    fprintf(file, "%d", 16);            //写入"chunksize"
-    fprintf(file, "%d", 0x00010001);     //写入编码格式(01)和音轨(01)
-    fprintf(file, "%d", 441000);
-    fprintf(file, "%d", 1 * 441000 * 16 / 8);
-    fprintf(file, "%d", 0x0002000f);
-    fprintf(file, "%s", data);
-    fprintf(file, "%d", 0);
+    fwrite(RIFF, sizeof(char), 4, file);      //写入"RIFF"
+    uint32_t s = 36;
+    fwrite(&s, sizeof(s), 1, file);             //写入文件长度
+    fwrite(WAVE, sizeof(char), 4, file);         //写入"WAVE"
+    fwrite(fmt, sizeof(char), 4, file);         //写入"fmt "
+    s = 16;            //写入"chunksize"
+    fwrite(&s, sizeof(s), 1, file);
+    int16_t pcm = 1;
+    fwrite(&pcm, sizeof(int16_t), 1, file);
+    fwrite(&pcm, sizeof(int16_t), 1, file);
+    s = 44100;
+    fwrite(&s, sizeof(s), 1, file);
+    s = 1 * 441000 * 16 / 8;
+    fwrite(&s, sizeof(s), 1, file);
+    pcm = 2;
+    fwrite(&pcm, sizeof(int16_t), 1, file);
+    pcm = 16;
+    fwrite(&pcm, sizeof(int16_t), 1, file);
+    fwrite(data, sizeof(char), 4, file);
+    s = 0;
+    fwrite(&s, sizeof(s), 1, file);
     return 0;
 }
 

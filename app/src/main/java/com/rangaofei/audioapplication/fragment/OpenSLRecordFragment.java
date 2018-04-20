@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.rangaofei.audioapplication.R;
-import com.rangaofei.audioapplication.com.saka.ndk.OpenSLUtil;
+import com.saka.ndk.OpenSLUtil;
 import com.rangaofei.audioapplication.databinding.FragmentOpenSlrecordBinding;
 
 /**
