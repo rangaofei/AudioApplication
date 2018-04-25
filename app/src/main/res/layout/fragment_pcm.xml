@@ -14,5 +14,16 @@
             android:layout_gravity="center|center_horizontal"
             android:text="start" />
 
+        <Button
+            android:id="@+id/btn_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="play" />
+
+        <Button
+            android:id="@+id/btn_convert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="convertToMp3" />
     </LinearLayout>
 </layout>

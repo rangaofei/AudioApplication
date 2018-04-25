@@ -6,7 +6,16 @@
 cmake_minimum_required(VERSION 3.4.1)
 set(CMAKE_CXX_FLAGE "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror")
 set(LIB_NAME OpenSLUtil)
+set(LIB_MP3 Mp3Codec)
 
+#add_library(mp3lame SHARED IMPORTED)
+#set_target_properties(mp3lame PROPERTIES IMPORTED_LOCATION
+#${CMAKE_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}/libmp3lame.so)
+
+include_directories(
+             src/main/cpp/include
+            )
+add_subdirectory(src/main/cpp/libmp3lame)
 add_library( # Sets the name of the library.
              ${LIB_NAME}
 
@@ -15,12 +24,12 @@ add_library( # Sets the name of the library.
              src/main/cpp/opensl_util.cpp
              src/main/cpp/audio_common.cpp
              src/main/cpp/audio_recorder.cpp)
+add_library(
+            ${LIB_MP3}
+            SHARED
+            src/main/cpp/mp3codec.cpp
+            src/main/cpp/Mp3Encoder.cpp)
 
-# Searches for a specified prebuilt library and stores the path as a
-# variable. Because CMake includes system libraries in the search path by
-# default, you only need to specify the name of the public NDK library
-# you want to add. CMake verifies that the library exists before
-# completing its build.
 
 find_library( # Sets the name of the path variable.
               log-lib
@@ -29,9 +38,6 @@ find_library( # Sets the name of the path variable.
               # you want CMake to locate.
               log )
 
-# Specifies libraries CMake should link to your target library. You
-# can link multiple libraries, such as libraries you define in this
-# build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
                         ${LIB_NAME}
@@ -39,3 +45,8 @@ target_link_libraries( # Specifies the target library.
                         atomic
                         OpenSLES
                        ${log-lib} )
+target_link_libraries(
+                        ${LIB_MP3}
+                        ${log-lib}
+                        mp3lame
+)

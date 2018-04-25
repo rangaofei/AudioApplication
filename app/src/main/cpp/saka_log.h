@@ -8,7 +8,7 @@
 #endif //VIDEOPLAY_SAKA_LOG_H
 
 #include <android/log.h>
-//#include "config.h"
+//#mp3codec.include "config.h"
 
 #define SAKA_LOG_LEVEL_VERBOSE 1
 #define SAKA_LOG_LEVEL_DEBUG 2
