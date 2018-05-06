@@ -1,18 +1,31 @@
 //
-// Created by 冉高飞 on 2018/4/24.
+// Created by 冉高飞 on 2018/5/3.
 //
 
-#include "Mp3Encoder.h"
-#include "saka_log.h"
+#include "mp3file_encoder.h"
+#include "../saka_log.h"
 
-int Mp3Encoder::Init(const char *pcmFilePath, const char *mp3FilePath, int sampleRate, int channels,
-                     int bitrate) {
+mp3file_encoder::mp3file_encoder() {
+    const char *version = get_lame_version();
+    SAKA_LOG_DEBUG("%s", version);
+
+}
+
+mp3file_encoder::~mp3file_encoder() {
+
+}
+
+int mp3file_encoder::Init(const char *pcmFilePath, const char *mp3FilePath, int sampleRate,
+                          int channels, int bitrate) {
     int ret = -1;
     pcmFile = fopen(pcmFilePath, "rb");
     if (pcmFile) {
         mp3File = fopen(mp3FilePath, "wb");
         if (mp3File) {
-            fseek(pcmFile, 0, 44);
+            uint32_t ptr = 0;
+            FmtChunk fmtChunk;
+            wavTools.getFileWavFormat(pcmFile, &fmtChunk);
+            wavTools.seekToFileRealData(pcmFile, &ptr);
             lameClient = lame_init();
             lame_set_in_samplerate(lameClient, sampleRate);
             lame_set_out_samplerate(lameClient, sampleRate);
@@ -24,9 +37,10 @@ int Mp3Encoder::Init(const char *pcmFilePath, const char *mp3FilePath, int sampl
         }
     }
     return ret;
+
 }
 
-void Mp3Encoder::Encode() {
+void mp3file_encoder::Encode() {
     size_t bufferSize = 1024 * 256;
     short *buffer = new short[bufferSize / 2];
     short *leftBuffer = new short[bufferSize / 4];
@@ -50,9 +64,10 @@ void Mp3Encoder::Encode() {
     delete[] leftBuffer;
     delete[] rightBuffer;
     delete[] mp3_buffer;
+
 }
 
-void Mp3Encoder::Destroy() {
+void mp3file_encoder::Destroy() {
     if (lameClient) {
         lame_close(lameClient);
     }
@@ -62,13 +77,5 @@ void Mp3Encoder::Destroy() {
     if (mp3File) {
         fclose(mp3File);
     }
-}
-
-Mp3Encoder::Mp3Encoder() {
-    const char *version = get_lame_version();
-    SAKA_LOG_DEBUG(version);
-}
-
-Mp3Encoder::~Mp3Encoder() {
 
 }

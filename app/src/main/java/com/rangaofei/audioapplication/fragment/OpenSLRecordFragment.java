@@ -47,7 +47,7 @@ public class OpenSLRecordFragment extends Fragment {
 
     private void initData() {
         queryNativeAudioParameters();
-        OpenSLUtil.createSLEngine(nativeSampleRate, nativeSampleBufferSize,1);
+        OpenSLUtil.createSLEngine(nativeSampleRate, nativeSampleBufferSize, 1);
         binding.btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,6 +81,7 @@ public class OpenSLRecordFragment extends Fragment {
         Log.e("---", "this device has low latency:" + hasLowLatency);
         AudioManager audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
         nativeSampleRate = Integer.parseInt(audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE));
+        Log.d("---", "采样率：" + nativeSampleRate);
         nativeSampleBufferSize = Integer.parseInt(audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER));
         int bufferSize = AudioRecord.getMinBufferSize(nativeSampleRate, AudioFormat.CHANNEL_IN_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT);

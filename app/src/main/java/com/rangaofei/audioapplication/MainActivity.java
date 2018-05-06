@@ -1,12 +1,11 @@
 package com.rangaofei.audioapplication;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.TextView;
 
-import com.rangaofei.audioapplication.fragment.PCMFragment;
+import com.rangaofei.audioapplication.opengles.GLSurfaceActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,13 +22,18 @@ public class MainActivity extends AppCompatActivity {
         startTargetActivity(ContainerActivity.RECORD_PCM);
     }
 
-    public void addOpenSL(View view){
+    public void addOpenSL(View view) {
         startTargetActivity(ContainerActivity.RECORD_OPENSL);
     }
 
     private void startTargetActivity(int i) {
         Intent intent = new Intent(this, ContainerActivity.class);
         intent.putExtra("type", i);
+        startActivity(intent);
+    }
+
+    public void startOoenGl(View view) {
+        Intent intent = new Intent(this, GLSurfaceActivity.class);
         startActivity(intent);
     }
 }

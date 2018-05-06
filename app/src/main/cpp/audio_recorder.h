@@ -24,10 +24,9 @@ class AudioRecorder {
 
     ENGINE_CALLBACK callback;
     void *ctx_;
-    FILE *file;
 
 public:
-    explicit AudioRecorder(SampleFormat *, SLEngineItf engineItf);
+    explicit AudioRecorder(SampleFormat *, SLEngineItf engineItf, int buffer_size);
 
     ~AudioRecorder();
 

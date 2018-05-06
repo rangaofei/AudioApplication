@@ -10,9 +10,31 @@ const char *RIFF = "RIFF";
 const char *WAVE = "WAVE";
 const char *fmt = "fmt ";
 const char *data = "data";
-char *file_name = "sdcard/txt.wav";
+char *file_name = "sdcard/e.mp3";
 
 #include <sys/stat.h>
+#include "Lame.h"
+#include "lameutils/lame_utils.h"
+
+lame_utils *lameUtils;
+int bufferSize;
+unsigned char *mp3_buffer;
+FILE *file;
+
+
+void encode(char *pcm_data, int data_size) {
+    int wroteSize = lameUtils->lame_encode((char *) pcm_data, data_size, mp3_buffer,
+                                           bufferSize);
+    fwrite(mp3_buffer, 1, (size_t) wroteSize, file);
+
+}
+
+void stop() {
+//    lame_encode_flush(lameClient, mp3_buffer, );
+//    lame_close(lameClient);
+    lameUtils->lame_destroy();
+    delete[] mp3_buffer;
+}
 
 int file_size2(char *filename) {
     struct stat statbuf;
@@ -33,8 +55,10 @@ void AudioRecorder::ProcessSLCallback(SLAndroidSimpleBufferQueueItf bq) {
     devShadowQueue->front(&dataBuf);
     devShadowQueue->pop();
     dataBuf->size = dataBuf->cap;
+    SAKA_LOG_DEBUG("dataBuf.size=%d", dataBuf->size);
 //    recQueue->push(dataBuf);
-    fwrite(dataBuf->buf, sizeof(char), dataBuf->size, file);
+    encode((char *) dataBuf->buf, dataBuf->size);
+//    fwrite(dataBuf->buf, sizeof(char), dataBuf->size, file);
     freeQueue->push(dataBuf);
 
     sample_buf *freeBuf;
@@ -50,12 +74,26 @@ void AudioRecorder::ProcessSLCallback(SLAndroidSimpleBufferQueueItf bq) {
     }
 }
 
-AudioRecorder::AudioRecorder(SampleFormat *sampleFormat, SLEngineItf slEngine) :
+AudioRecorder::AudioRecorder(SampleFormat *sampleFormat, SLEngineItf slEngine, int buffer_size) :
         freeQueue(nullptr), recQueue(nullptr), devShadowQueue(nullptr), callback(nullptr) {
     file = fopen(file_name, "w+");
-    writeHeader();
+    assert(file);
     SLresult result;
     sampleInfo = *sampleFormat;
+//    writeHeader();
+    lameUtils = new lame_utils();
+    LamePara *para = (LamePara *) malloc(sizeof(LamePara));
+    para->quality = 2;
+    para->mode = MONO;
+    para->brate = sampleInfo.channels * sampleInfo.sampleRate * 16 / 8 / 1000;
+    para->sample_rate = 44100;
+    para->num_channels = 1;
+    lameUtils->init_param(para);
+
+    lameUtils->get_mp3_buffer_size(&bufferSize, buffer_size);
+    SAKA_LOG_DEBUG("buffer_size=%d", buffer_size);
+    mp3_buffer = new unsigned char[buffer_size];
+
     SLAndroidDataFormat_PCM_EX format_pcm;
     ConvertToSampleFormat(&format_pcm, &sampleInfo);
 
@@ -146,7 +184,8 @@ SLboolean AudioRecorder::Start(void) {
 
 SLboolean AudioRecorder::Stop() {
     SLuint32 curState;
-    fclose(file);
+
+    stop();
     SLresult result = (*recordItf)->GetRecordState(recordItf, &curState);
     SLASSERT(result);
     if (curState == SL_RECORDSTATE_STOPPED) {
@@ -154,19 +193,19 @@ SLboolean AudioRecorder::Stop() {
     }
     int32_t size = file_size2(file_name);
     SAKA_LOG_DEBUG("the file size is %d", size);
-    file = fopen(file_name, "r+");
-    fseek(file, 4, SEEK_SET);
-    int32_t chunkSize = size - 8;
-    fwrite(&chunkSize, sizeof(int32_t), 1, file);
-    fseek(file, 40, SEEK_SET);
-    int32_t dataSize = size - 44;
-    fwrite(&dataSize, sizeof(uint32_t), 1, file);
-    fclose(file);
+//    file = fopen(file_name, "r+");
+//    fseek(file, 4, SEEK_SET);
+//    int32_t chunkSize = size - 8;
+//    fwrite(&chunkSize, sizeof(int32_t), 1, file);
+//    fseek(file, 40, SEEK_SET);
+//    int32_t dataSize = size - 44;
+//    fwrite(&dataSize, sizeof(uint32_t), 1, file);
+//    fclose(file);
     result = (*recordItf)->SetRecordState(recordItf, SL_RECORDSTATE_STOPPED);
     SLASSERT(result);
     result = (*recBufQueueItf)->Clear(recBufQueueItf);
     SLASSERT(result);
-
+    fclose(file);
     return SL_BOOLEAN_TRUE;
 }
 
@@ -210,7 +249,7 @@ int AudioRecorder::writeHeader() {
     fwrite(&s, sizeof(s), 1, file);
     int16_t pcm = 1;
     fwrite(&pcm, sizeof(int16_t), 1, file);
-    fwrite(&pcm, sizeof(int16_t), 1, file);
+    fwrite(&(sampleInfo.channels), sizeof(int16_t), 1, file);
     s = 44100;
     fwrite(&s, sizeof(s), 1, file);
     s = 1 * 441000 * 16 / 8;

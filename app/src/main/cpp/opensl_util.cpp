@@ -58,7 +58,7 @@ Java_com_saka_ndk_OpenSLUtil_createAudioRecorder(JNIEnv *env,
     sampleFormat.channels = audioEngine.sampleChannels;
     sampleFormat.sampleRate = audioEngine.fastPathSampleRate;
     sampleFormat.framesPerBuf = audioEngine.fastPathFramesPerBuf;
-    audioEngine.recorder = new AudioRecorder(&sampleFormat, audioEngine.slEngineItf);
+    audioEngine.recorder = new AudioRecorder(&sampleFormat, audioEngine.slEngineItf,audioEngine.bufs[0].cap);
 
     if (!audioEngine.recorder) {
         return JNI_FALSE;
