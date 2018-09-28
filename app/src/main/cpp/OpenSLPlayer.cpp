@@ -123,6 +123,16 @@ static void jniStopPlay() {
     }
 }
 
+static void jniStopRecord(){
+    SLuint32 playState = 0;
+    res = (*context->recordItf)->GetRecordState(context->recordItf, &playState);
+    checkErr(res, "getRecordState");
+    if (playState != SL_RECORDSTATE_STOPPED) {
+        res = (*context->recordItf)->SetRecordState(context->recordItf, SL_PLAYSTATE_STOPPED);
+        checkErr(res, "setRecordStopped");
+    }
+}
+
 /**
  * 销毁资源
  */
