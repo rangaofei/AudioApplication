@@ -27,6 +27,7 @@ assert(SL_RESULT_SUCCESS==(x));\
 }while(0)
 
 #define ENGINE_SERVICE_MSG_RETRIVE_DUMP_BUFS 2
+
 typedef bool (*ENGINE_CALLBACK)(void *pCTX, uint32_t msg, void *pData);
 
 #endif //AUDIOAPPLICATION_AUDIO_COMMON_H

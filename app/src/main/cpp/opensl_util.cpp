@@ -9,9 +9,9 @@ static AudioEngine audioEngine;
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_saka_ndk_OpenSLUtil_createSLEngine(JNIEnv *env, jclass type,
-                                                                           jint rate,
-                                                                           jint framesPerBuf,
-                                                                           jint channels) {
+                                            jint rate,
+                                            jint framesPerBuf,
+                                            jint channels) {
     SAKA_LOG_DEBUG("the rate is %d,the framePerBuffer is %d", rate, framesPerBuf);
     SLresult result;
     memset(&audioEngine, 0, sizeof(audioEngine));
@@ -24,6 +24,9 @@ Java_com_saka_ndk_OpenSLUtil_createSLEngine(JNIEnv *env, jclass type,
     result = slCreateEngine(&audioEngine.slEngineObj, 0, NULL, 0, NULL, NULL);
     SLASSERT(result);
 
+    /*
+     * 第二个参数表示是否使用异步，此处传入false，表示同步初始化
+     */
     result = (*audioEngine.slEngineObj)->Realize(audioEngine.slEngineObj, SL_BOOLEAN_FALSE);
     SLASSERT(result);
 
@@ -50,7 +53,7 @@ Java_com_saka_ndk_OpenSLUtil_createSLEngine(JNIEnv *env, jclass type,
 extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_saka_ndk_OpenSLUtil_createAudioRecorder(JNIEnv *env,
-                                                                                jclass type) {
+                                                 jclass type) {
 
     SampleFormat sampleFormat;
     memset(&sampleFormat, 0, sizeof(sampleFormat));
@@ -58,7 +61,8 @@ Java_com_saka_ndk_OpenSLUtil_createAudioRecorder(JNIEnv *env,
     sampleFormat.channels = audioEngine.sampleChannels;
     sampleFormat.sampleRate = audioEngine.fastPathSampleRate;
     sampleFormat.framesPerBuf = audioEngine.fastPathFramesPerBuf;
-    audioEngine.recorder = new AudioRecorder(&sampleFormat, audioEngine.slEngineItf,audioEngine.bufs[0].cap);
+    audioEngine.recorder = new AudioRecorder(&sampleFormat, audioEngine.slEngineItf,
+                                             audioEngine.bufs[0].cap);
 
     if (!audioEngine.recorder) {
         return JNI_FALSE;
@@ -72,7 +76,7 @@ Java_com_saka_ndk_OpenSLUtil_createAudioRecorder(JNIEnv *env,
 }extern "C"
 JNIEXPORT void JNICALL
 Java_com_saka_ndk_OpenSLUtil_deleteAudioRecorder(JNIEnv *env,
-                                                                                jclass type) {
+                                                 jclass type) {
 
     if (audioEngine.recorder) {
         delete audioEngine.recorder;
@@ -124,4 +128,3 @@ bool EngineService(void *ctx, uint32_t msg, void *data) {
             return false;
     }
 }
-

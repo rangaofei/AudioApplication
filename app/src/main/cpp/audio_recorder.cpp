@@ -64,7 +64,7 @@ void AudioRecorder::ProcessSLCallback(SLAndroidSimpleBufferQueueItf bq) {
     sample_buf *freeBuf;
     while (freeQueue->front(&freeBuf) && devShadowQueue->push(freeBuf)) {
         freeQueue->pop();
-        SLresult result = (*bq)->Enqueue(bq, freeBuf->buf, freeBuf->cap);
+        SLresult result = (*bq)->(bq, freeBuf->buf, freeBuf->cap);
         SLASSERT(result);
     }
     ++audioBufCount;
